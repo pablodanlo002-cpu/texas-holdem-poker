@@ -1,0 +1,113 @@
+╔═══════════════════════════════════════════════════════════════╗
+║                                                               ║
+║     🃏 TEXAS HOLD'EM POKER - GUIDE DE DÉMARRAGE             ║
+║                                                               ║
+╚═══════════════════════════════════════════════════════════════╝
+
+
+📂 TU ES ICI : C:\Users\deksa\OneDrive\Desktop\sittest
+
+
+🎯 QUE VEUX-TU FAIRE ?
+
+
+┌───────────────────────────────────────────────────────────────┐
+│  1️⃣  TESTER LE SITE SUR TON PC (LOCAL)                       │
+└───────────────────────────────────────────────────────────────┘
+
+✅ C'est déjà prêt !
+
+➡️  Double-clique sur : DEMARRER.bat
+
+Le site s'ouvrira sur : http://localhost:3000
+
+
+┌───────────────────────────────────────────────────────────────┐
+│  2️⃣  HÉBERGER LE SITE GRATUITEMENT (EN LIGNE 24/7)           │
+└───────────────────────────────────────────────────────────────┘
+
+📖 ÉTAPE 1 : Mettre le code sur GitHub
+   ➡️  Ouvre : ETAPES_GITHUB.txt
+   ⏱️  Temps : 5 minutes
+
+📖 ÉTAPE 2 : Déployer sur Railway
+   ➡️  Ouvre : DEPLOIEMENT_RAILWAY.md
+   ⏱️  Temps : 10 minutes
+
+✅ TON SITE SERA EN LIGNE GRATUITEMENT !
+
+
+┌───────────────────────────────────────────────────────────────┐
+│  3️⃣  PERSONNALISER LE SITE                                    │
+└───────────────────────────────────────────────────────────────┘
+
+📝 Changer les liens YouTube/TikTok
+   ➡️  Édite : lib/rewards.js (lignes 18-19)
+   
+📝 Modifier les récompenses (montants, limites)
+   ➡️  Édite : lib/rewards.js (lignes 21-33)
+   
+📝 Personnaliser la roue de fortune
+   ➡️  Édite : lib/rewards.js (lignes 40-47)
+
+
+═══════════════════════════════════════════════════════════════
+
+📁 FICHIERS IMPORTANTS :
+
+
+🔹 DEMARRER.bat
+   Pour tester localement sur ton PC
+
+🔹 ETAPES_GITHUB.txt
+   Guide simple pour mettre sur GitHub
+
+🔹 DEPLOIEMENT_RAILWAY.md
+   Guide complet pour héberger gratuitement
+
+🔹 README.md
+   Documentation technique du projet
+
+🔹 .env.local
+   ⚠️  CONTIENT TES SECRETS (ne JAMAIS partager)
+
+
+═══════════════════════════════════════════════════════════════
+
+✅ FONCTIONNALITÉS DU SITE :
+
+🃏 Poker Texas Hold'em
+   - 4 niveaux de difficulté
+   - Bots IA intelligents
+   - Sons style Zynga Poker
+
+🎁 Système de récompenses
+   - YouTube : 500 pièces
+   - TikTok : 500 pièces
+   - Pubs : 100 pièces/vidéo
+   - Roue quotidienne : 50 à 2000 pièces
+
+🤖 Bot Discord
+   - /register pour créer un compte
+   - Pseudos uniques (pas de doublons)
+
+
+═══════════════════════════════════════════════════════════════
+
+💡 BESOIN D'AIDE ?
+
+Tous les guides sont dans ce dossier :
+- ETAPES_GITHUB.txt (simple)
+- GUIDE_GITHUB.md (détaillé)
+- DEPLOIEMENT_RAILWAY.md (hébergement)
+- README.md (documentation complète)
+
+
+═══════════════════════════════════════════════════════════════
+
+🚀 COMMENCE PAR :
+
+1. Double-clique sur DEMARRER.bat pour tester
+2. Puis ouvre ETAPES_GITHUB.txt pour héberger
+
+C'est tout ! 🎉

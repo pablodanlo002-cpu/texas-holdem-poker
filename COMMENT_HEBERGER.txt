@@ -1,0 +1,49 @@
+╔═══════════════════════════════════════════════════════════════╗
+║                                                               ║
+║     🚂 HÉBERGER TON SITE GRATUITEMENT SUR RAILWAY.APP       ║
+║                                                               ║
+╚═══════════════════════════════════════════════════════════════╝
+
+✅ TOUT EST PRÊT ! Il te suffit de suivre ces 5 étapes simples :
+
+
+📖 GUIDE COMPLET : Ouvre le fichier DEPLOIEMENT_RAILWAY.md
+
+
+🎯 RÉSUMÉ RAPIDE :
+
+1️⃣  Crée un compte sur https://railway.app (avec GitHub)
+
+2️⃣  Crée un dépôt GitHub de ce projet
+    - Télécharge GitHub Desktop : https://desktop.github.com
+    - Publie le dossier "sittest" sur GitHub
+
+3️⃣  Sur Railway : "New Project" > "Deploy from GitHub"
+    - Choisis ton repo
+    - Attends le build (3-5 minutes)
+
+4️⃣  Configure les variables d'environnement dans Railway :
+    JWT_SECRET=un_secret_long_et_securise
+    DISCORD_TOKEN=ton_token_discord
+    NODE_ENV=production
+
+5️⃣  Génère un domaine dans Railway
+    - Settings > Generate Domain
+    - Tu auras : https://ton-projet.up.railway.app
+
+
+🎉 C'EST TOUT ! Ton site est en ligne 24/7 gratuitement !
+
+
+💰 COÛT : GRATUIT (5$/mois de crédit offert par Railway)
+
+
+🔄 MISE À JOUR :
+Quand tu modifies ton code localement :
+1. Commit dans GitHub Desktop
+2. Push
+3. Railway redéploie automatiquement
+
+
+📞 BESOIN D'AIDE ?
+Lis le fichier DEPLOIEMENT_RAILWAY.md qui explique TOUT en détail !

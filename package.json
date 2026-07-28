@@ -1,0 +1,35 @@
+{
+  "name": "sittest",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "bot": "node bot/index.js",
+    "poker": "node server/poker-server.js",
+    "start:all": "concurrently -n site,poker,bot -c blue,green,magenta \"npm run start\" \"npm run poker\" \"npm run bot\"",
+    "dev:all": "concurrently -n site,poker,bot -c blue,green,magenta \"npm run dev\" \"npm run poker\" \"npm run bot\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "concurrently": "^10.0.4",
+    "discord.js": "^14.27.0",
+    "dotenv": "^17.4.2",
+    "jsonwebtoken": "^9.0.3",
+    "next": "^16.2.12",
+    "pokersolver": "^2.1.4",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "socket.io": "^4.8.3",
+    "socket.io-client": "^4.8.3"
+  }
+}

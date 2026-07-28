@@ -1,0 +1,63 @@
+╔═══════════════════════════════════════════════════════════════╗
+║                                                               ║
+║          📦 METTRE TON PROJET SUR GITHUB - SIMPLE            ║
+║                                                               ║
+╚═══════════════════════════════════════════════════════════════╝
+
+
+🎯 MÉTHODE FACILE : GitHub Desktop
+
+
+1️⃣  Télécharge GitHub Desktop
+    👉 https://desktop.github.com
+    - Clique sur "Download for Windows"
+    - Installe-le
+
+
+2️⃣  Crée un compte GitHub (si tu n'en as pas)
+    👉 https://github.com/signup
+    - Choisis un nom d'utilisateur
+    - Entre ton email
+    - Crée un mot de passe
+
+
+3️⃣  Dans GitHub Desktop :
+    - File > Add Local Repository
+    - Choisis : C:\Users\deksa\OneDrive\Desktop\sittest
+    - Clique sur "Add Repository"
+    
+    ⚠️ Si erreur "not a Git repository" :
+    - Clique sur "Create a repository"
+
+
+4️⃣  Fais ton premier commit :
+    - En bas à gauche, écris : "Premier commit"
+    - Clique sur "Commit to main"
+
+
+5️⃣  Publie sur GitHub :
+    - Clique sur "Publish repository"
+    - Nom : texas-holdem-poker
+    - ⚠️ DÉCOCHE "Keep this code private"
+    - Clique sur "Publish Repository"
+
+
+✅ C'EST FAIT ! Ton code est sur GitHub !
+
+
+📍 Tu peux le voir sur :
+   https://github.com/TON_USERNAME/texas-holdem-poker
+
+
+🚀 PROCHAINE ÉTAPE :
+   Ouvre DEPLOIEMENT_RAILWAY.md pour héberger ton site !
+
+
+═══════════════════════════════════════════════════════════════
+
+💡 BESOIN D'AIDE ?
+
+Ouvre le fichier GUIDE_GITHUB.md pour voir :
+- Des captures d'écran
+- Méthode alternative (ligne de commande)
+- Solutions aux problèmes courants

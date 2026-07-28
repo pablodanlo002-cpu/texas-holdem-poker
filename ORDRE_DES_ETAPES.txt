@@ -1,0 +1,114 @@
+╔═══════════════════════════════════════════════════════════════╗
+║                                                               ║
+║        🚀 HÉBERGER TON SITE - ORDRE DES ÉTAPES               ║
+║                                                               ║
+╚═══════════════════════════════════════════════════════════════╝
+
+
+┌─────────────────────────────────────────────────────────────┐
+│                                                             │
+│  ÉTAPE 1 : GITHUB (5 minutes)                              │
+│  📦 Mettre ton code en ligne                               │
+│                                                             │
+│  ➡️  Ouvre : ETAPES_GITHUB.txt                             │
+│                                                             │
+│  Actions :                                                  │
+│  1. Télécharge GitHub Desktop                              │
+│  2. Crée un compte GitHub                                  │
+│  3. Ajoute ton projet                                      │
+│  4. Publie sur GitHub                                      │
+│                                                             │
+│  ✅ Résultat : Code sur github.com/TON_USERNAME/...        │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+
+                         ⬇️
+
+┌─────────────────────────────────────────────────────────────┐
+│                                                             │
+│  ÉTAPE 2 : RAILWAY (10 minutes)                            │
+│  🚂 Héberger gratuitement                                  │
+│                                                             │
+│  ➡️  Ouvre : DEPLOIEMENT_RAILWAY.md                        │
+│                                                             │
+│  Actions :                                                  │
+│  1. Crée un compte Railway.app                             │
+│  2. "New Project" > "Deploy from GitHub"                   │
+│  3. Configure les variables d'environnement :              │
+│     - JWT_SECRET (double-clique generer-secret.ps1)        │
+│     - DISCORD_TOKEN                                         │
+│  4. Génère un domaine                                      │
+│                                                             │
+│  ✅ Résultat : Site en ligne sur .up.railway.app           │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+
+                         ⬇️
+
+┌─────────────────────────────────────────────────────────────┐
+│                                                             │
+│  ÉTAPE 3 : TESTER (2 minutes)                              │
+│  🎮 Vérifier que tout marche                               │
+│                                                             │
+│  Actions :                                                  │
+│  1. Ouvre ton site Railway dans le navigateur              │
+│  2. Le bot Discord devrait être en ligne                   │
+│  3. Fais /register sur Discord pour créer un compte        │
+│  4. Connecte-toi sur le site                               │
+│  5. Teste le poker et les récompenses                      │
+│                                                             │
+│  ✅ Résultat : Tout fonctionne ! 🎉                        │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+
+
+═══════════════════════════════════════════════════════════════
+
+
+📋 CHECKLIST COMPLÈTE :
+
+GitHub :
+  ☐ GitHub Desktop installé
+  ☐ Compte GitHub créé
+  ☐ Projet publié sur GitHub
+
+Railway :
+  ☐ Compte Railway créé
+  ☐ Projet déployé depuis GitHub
+  ☐ JWT_SECRET configuré
+  ☐ DISCORD_TOKEN configuré
+  ☐ Domaine généré
+
+Test :
+  ☐ Site accessible sur le domaine Railway
+  ☐ Bot Discord en ligne
+  ☐ /register fonctionne
+  ☐ Connexion au site OK
+  ☐ Poker fonctionne
+  ☐ Récompenses fonctionnent
+
+
+═══════════════════════════════════════════════════════════════
+
+
+⏱️  TEMPS TOTAL : ~20 minutes
+
+💰 COÛT : GRATUIT (5$/mois de crédit offert)
+
+
+═══════════════════════════════════════════════════════════════
+
+
+🆘 BLOQUÉ QUELQUE PART ?
+
+➡️  Tous les guides détaillés sont dans ce dossier
+➡️  Lis DEPLOIEMENT_RAILWAY.md pour plus de détails
+➡️  La section "Problèmes courants" aide à débugger
+
+
+═══════════════════════════════════════════════════════════════
+
+
+🎉 COMMENCE MAINTENANT !
+
+Ouvre ETAPES_GITHUB.txt et suis les instructions !
