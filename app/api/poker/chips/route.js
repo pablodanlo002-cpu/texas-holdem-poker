@@ -4,6 +4,8 @@ import { findUserById, updateChips } from "../../../../lib/db.js";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
+console.log("[API /api/poker/chips] Route loaded ✓");
+
 export async function GET(request) {
   try {
     const authHeader = request.headers.get("authorization");
