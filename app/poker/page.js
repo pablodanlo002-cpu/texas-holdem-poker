@@ -15,7 +15,7 @@ export default async function PokerPage() {
     redirect("/");
   }
 
-  // Le serveur poker tourne sur le même conteneur, port 4000, Next.js proxy via rewrites
-  const serverUrl = typeof window !== "undefined" ? window.location.origin : "";
+  // Le serveur poker est déployé séparément, on utilise la variable d'environnement
+  const serverUrl = process.env.NEXT_PUBLIC_POKER_URL || (typeof window !== "undefined" ? window.location.origin : "");
   return <PokerClient serverUrl={serverUrl} />;
 }

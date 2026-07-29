@@ -20,16 +20,6 @@ const nextConfig = {
     '.ngrok-free.dev',
     '.ngrok.io',
   ],
-
-  // Rewrites pour rediriger Socket.IO vers l'API proxy
-  async rewrites() {
-    return [
-      {
-        source: '/socket.io/:path*',
-        destination: '/api/socket',
-      },
-    ];
-  },
 };
 
 export default nextConfig;
