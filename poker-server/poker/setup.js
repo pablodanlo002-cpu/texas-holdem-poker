@@ -44,6 +44,9 @@ const turnTimers = new Map();
 let tableCounter = 1;
 let botCounter = 1;
 
+// Cache des rewards en mémoire (persiste tant que le serveur tourne)
+const rewardsCache = new Map();
+
 const CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
 function generateCode() {
@@ -455,6 +458,19 @@ async function leaveCurrentTable(socket, io) {
 }
 
 export function setupPokerServer(io) {
+  // Charger les rewards depuis le fichier au démarrage
+  console.log("[REWARDS] Chargement du cache rewards depuis poker-data.json...");
+  const initialData = loadPokerData();
+  if (initialData.users) {
+    Object.entries(initialData.users).forEach(([userId, userData]) => {
+      if (userData.rewards) {
+        rewardsCache.set(parseInt(userId), userData.rewards);
+        console.log(`[REWARDS] Chargé rewards pour user ${userId}:`, userData.rewards);
+      }
+    });
+  }
+  console.log(`[REWARDS] Cache initialisé avec ${rewardsCache.size} utilisateurs`);
+
   io.use((socket, next) => {
     try {
       const token = socket.handshake.auth?.token;
@@ -494,20 +510,15 @@ export function setupPokerServer(io) {
     socket.on("poker:reward", async ({ type } = {}) => {
       if (!type || (type !== "youtube" && type !== "tiktok")) return;
       
-      // Vérifier si déjà réclamé
       const payload = jwt.verify(token, JWT_SECRET);
-      const localData = loadPokerData();
+      const userId = payload.id;
       
-      if (!localData.users[payload.id]) {
-        localData.users[payload.id] = {
-          id: payload.id,
-          username: payload.username,
-          chips: 5000,
-          rewards: {}
-        };
+      // Vérifier dans le cache mémoire
+      if (!rewardsCache.has(userId)) {
+        rewardsCache.set(userId, {});
       }
       
-      const userRewards = localData.users[payload.id].rewards || {};
+      const userRewards = rewardsCache.get(userId);
       
       if (userRewards[type]) {
         socket.emit("error:msg", `Tu as déjà réclamé la récompense ${type === "youtube" ? "YouTube" : "TikTok"} !`);
@@ -518,8 +529,24 @@ export function setupPokerServer(io) {
       const bank = await getBankroll(token);
       await setBankroll(token, bank + 500);
       
-      // Marquer comme réclamé
-      localData.users[payload.id].rewards[type] = Date.now();
+      // Marquer comme réclamé dans le cache
+      userRewards[type] = Date.now();
+      rewardsCache.set(userId, userRewards);
+      
+      // Aussi marquer dans le fichier local
+      const localData = loadPokerData();
+      if (!localData.users[userId]) {
+        localData.users[userId] = {
+          id: userId,
+          username: payload.username,
+          chips: bank + 500,
+          rewards: {}
+        };
+      }
+      if (!localData.users[userId].rewards) {
+        localData.users[userId].rewards = {};
+      }
+      localData.users[userId].rewards[type] = Date.now();
       savePokerData(localData);
       
       console.log(`[REWARD] ${payload.username} a reçu +500 coins pour ${type}`);
@@ -529,18 +556,14 @@ export function setupPokerServer(io) {
 
     socket.on("poker:spinWheel", async () => {
       const payload = jwt.verify(token, JWT_SECRET);
-      const localData = loadPokerData();
+      const userId = payload.id;
       
-      if (!localData.users[payload.id]) {
-        localData.users[payload.id] = {
-          id: payload.id,
-          username: payload.username,
-          chips: 5000,
-          rewards: {}
-        };
+      // Vérifier dans le cache mémoire
+      if (!rewardsCache.has(userId)) {
+        rewardsCache.set(userId, {});
       }
       
-      const userRewards = localData.users[payload.id].rewards || {};
+      const userRewards = rewardsCache.get(userId);
       const lastSpin = userRewards.wheel || 0;
       const now = Date.now();
       const cooldown = 24 * 60 * 60 * 1000; // 24h en ms
@@ -558,8 +581,24 @@ export function setupPokerServer(io) {
       const bank = await getBankroll(token);
       await setBankroll(token, bank + won);
       
-      // Marquer la date du dernier spin
-      localData.users[payload.id].rewards.wheel = now;
+      // Marquer dans le cache
+      userRewards.wheel = now;
+      rewardsCache.set(userId, userRewards);
+      
+      // Aussi marquer dans le fichier local
+      const localData = loadPokerData();
+      if (!localData.users[userId]) {
+        localData.users[userId] = {
+          id: userId,
+          username: payload.username,
+          chips: bank + won,
+          rewards: {}
+        };
+      }
+      if (!localData.users[userId].rewards) {
+        localData.users[userId].rewards = {};
+      }
+      localData.users[userId].rewards.wheel = now;
       savePokerData(localData);
       
       console.log(`[WHEEL] ${payload.username} a gagné ${won} coins à la roue`);
