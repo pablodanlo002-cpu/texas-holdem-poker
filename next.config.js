@@ -20,6 +20,16 @@ const nextConfig = {
     '.ngrok-free.dev',
     '.ngrok.io',
   ],
+
+  // Rewrites pour rediriger Socket.IO vers le serveur poker interne
+  async rewrites() {
+    return [
+      {
+        source: '/socket.io/:path*',
+        destination: 'http://localhost:4000/socket.io/:path*',
+      },
+    ];
+  },
 };
 
 export default nextConfig;

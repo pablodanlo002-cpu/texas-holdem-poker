@@ -103,7 +103,10 @@ export default function PokerClient({ serverUrl }) {
         return;
       }
 
-      socket = io(serverUrl, { auth: { token } });
+      socket = io(serverUrl, { 
+        auth: { token },
+        transports: ["websocket", "polling"]
+      });
       socketRef.current = socket;
 
       socket.on("connect", () => setStatus("connecté"));
