@@ -38,3 +38,5 @@ yarn-error.log*
 
 # Database (local only)
 data.json
+
+.vercel

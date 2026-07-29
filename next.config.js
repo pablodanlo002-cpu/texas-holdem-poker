@@ -13,6 +13,13 @@ const nextConfig = {
   // (NEXT_DIST_DIR=.next-check next build) sans corrompre le cache du
   // serveur de dev qui tourne en parallèle sur .next.
   distDir: process.env.NEXT_DIST_DIR || ".next",
+
+  // Autorise ngrok et autres tunnels en développement
+  allowedDevOrigins: [
+    'desolate-gloating-related.ngrok-free.dev',
+    '.ngrok-free.dev',
+    '.ngrok.io',
+  ],
 };
 
 export default nextConfig;
