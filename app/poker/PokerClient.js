@@ -140,6 +140,10 @@ export default function PokerClient({ serverUrl }) {
         setError(msg);
         setTimeout(() => setError(""), 3500);
       });
+      socket.on("poker:wheelResult", ({ won }) => {
+        setError(`🎰 Tu as gagné ${won} coins !`);
+        setTimeout(() => setError(""), 3500);
+      });
     })();
 
     return () => {
@@ -292,6 +296,36 @@ export default function PokerClient({ serverUrl }) {
             <span>{livePlayers} joueur{livePlayers > 1 ? "s" : ""}</span>
             <span>·</span>
             <span>{affordable} accessible{affordable > 1 ? "s" : ""}</span>
+            
+            {/* Boutons rewards */}
+            <button 
+              className="reward-btn youtube" 
+              onClick={() => {
+                window.open("https://www.youtube.com/@TechNova-d2o", "_blank");
+                emit("poker:reward", { type: "youtube" });
+              }}
+              title="S'abonner sur YouTube (+500 coins)"
+            >
+              ▶️ YouTube
+            </button>
+            <button 
+              className="reward-btn tiktok" 
+              onClick={() => {
+                window.open("https://www.tiktok.com/@coucou0534", "_blank");
+                emit("poker:reward", { type: "tiktok" });
+              }}
+              title="Suivre sur TikTok (+500 coins)"
+            >
+              🎵 TikTok
+            </button>
+            <button 
+              className="reward-btn wheel" 
+              onClick={() => emit("poker:spinWheel")}
+              title="Tourner la roue (gratuit 1x par jour)"
+            >
+              🎰 Roue
+            </button>
+            
             <button 
               className="recharge-btn sm" 
               onClick={() => emit("me:refresh")}

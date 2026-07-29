@@ -1066,3 +1066,49 @@
   border-color: rgba(255, 255, 255, 0.3);
   transform: translateX(-2px);
 }
+
+/* Boutons rewards YouTube/TikTok */
+.reward-btn {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.2s;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.reward-btn.youtube {
+  background: rgba(255, 0, 0, 0.15);
+  border-color: rgba(255, 0, 0, 0.3);
+}
+
+.reward-btn.youtube:hover {
+  background: rgba(255, 0, 0, 0.25);
+  border-color: rgba(255, 0, 0, 0.5);
+  transform: translateY(-2px);
+}
+
+.reward-btn.tiktok {
+  background: rgba(0, 255, 255, 0.15);
+  border-color: rgba(0, 255, 255, 0.3);
+}
+
+.reward-btn.tiktok:hover {
+  background: rgba(0, 255, 255, 0.25);
+  border-color: rgba(0, 255, 255, 0.5);
+  transform: translateY(-2px);
+}
+
+.reward-btn.wheel {
+  background: rgba(255, 215, 0, 0.15);
+  border-color: rgba(255, 215, 0, 0.3);
+}
+
+.reward-btn.wheel:hover {
+  background: rgba(255, 215, 0, 0.25);
+  border-color: rgba(255, 215, 0, 0.5);
+  transform: translateY(-2px);
+}

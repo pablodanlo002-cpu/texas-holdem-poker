@@ -471,6 +471,28 @@ export function setupPokerServer(io) {
       sendMe();
     });
 
+    socket.on("poker:reward", async ({ type } = {}) => {
+      if (!type || (type !== "youtube" && type !== "tiktok")) return;
+      
+      const bank = await getBankroll(token);
+      await setBankroll(token, bank + 500);
+      console.log(`[REWARD] ${user.username} a reçu +500 coins pour ${type}`);
+      sendMe();
+    });
+
+    socket.on("poker:spinWheel", async () => {
+      // Système de roue simple : gains aléatoires entre 100 et 2000 coins
+      const prizes = [100, 250, 500, 750, 1000, 1500, 2000];
+      const won = prizes[Math.floor(Math.random() * prizes.length)];
+      
+      const bank = await getBankroll(token);
+      await setBankroll(token, bank + won);
+      console.log(`[WHEEL] ${user.username} a gagné ${won} coins à la roue`);
+      
+      socket.emit("poker:wheelResult", { won });
+      sendMe();
+    });
+
     socket.on("lobby:create", ({ name, smallBlind, bigBlind, maxSeats, isPrivate, withBots } = {}) => {
       const table = createTable(name, {
         smallBlind,
