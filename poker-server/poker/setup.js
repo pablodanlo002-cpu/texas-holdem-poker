@@ -116,8 +116,16 @@ async function getBankroll(token) {
           localData.users[payload.id] = {
             id: payload.id,
             username: payload.username,
-            chips: data.chips
+            chips: data.chips,
+            rewards: {}
           };
+          savePokerData(localData);
+        } else {
+          // Mettre à jour les chips mais garder rewards
+          localData.users[payload.id].chips = data.chips;
+          if (!localData.users[payload.id].rewards) {
+            localData.users[payload.id].rewards = {};
+          }
           savePokerData(localData);
         }
         
@@ -141,6 +149,12 @@ async function getBankroll(token) {
       return 5000;
     }
     
+    // S'assurer que rewards existe
+    if (!localData.users[payload.id].rewards) {
+      localData.users[payload.id].rewards = {};
+      savePokerData(localData);
+    }
+    
     console.log(`[LOCAL] Bankroll ${payload.username}: ${localData.users[payload.id].chips} coins`);
     return localData.users[payload.id].chips || 0;
   } catch (error) {
@@ -159,10 +173,15 @@ async function setBankroll(token, chips) {
       localData.users[payload.id] = {
         id: payload.id,
         username: payload.username,
-        chips: chips
+        chips: chips,
+        rewards: {}
       };
     } else {
+      // Mettre à jour les chips mais GARDER rewards
       localData.users[payload.id].chips = Math.max(0, Math.round(chips));
+      if (!localData.users[payload.id].rewards) {
+        localData.users[payload.id].rewards = {};
+      }
     }
     savePokerData(localData);
     console.log(`[LOCAL] Bankroll ${payload.username} mis à jour: ${localData.users[payload.id].chips} coins`);

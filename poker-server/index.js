@@ -5,7 +5,7 @@ import { setupPokerServer } from "./poker/setup.js";
 
 dotenv.config();
 
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 8080;
 
 // Serveur HTTP simple
 const httpServer = createServer((req, res) => {
