@@ -36,6 +36,8 @@ app.prepare().then(async () => {
       origin: true,
       credentials: true,
     },
+    transports: ["websocket", "polling"],
+    allowEIO3: true,
   });
 
   // Import et configuration du serveur poker
