@@ -82,8 +82,8 @@ function findTableByCode(code) {
 // ---- Bankroll : récupération via API Next.js ----
 async function getBankroll(token) {
   try {
-    console.log(`[API] GET bankroll depuis ${NEXT_API_URL}/api/poker/chips`);
-    const response = await fetch(`${NEXT_API_URL}/api/poker/chips`, {
+    console.log(`[API] GET bankroll depuis ${NEXT_API_URL}/api/auth/chips`);
+    const response = await fetch(`${NEXT_API_URL}/api/auth/chips`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     console.log(`[API] GET response status: ${response.status}`);
@@ -102,8 +102,8 @@ async function getBankroll(token) {
 
 async function setBankroll(token, chips) {
   try {
-    console.log(`[API] POST bankroll ${chips} coins vers ${NEXT_API_URL}/api/poker/chips`);
-    const response = await fetch(`${NEXT_API_URL}/api/poker/chips`, {
+    console.log(`[API] POST bankroll ${chips} coins vers ${NEXT_API_URL}/api/auth/chips`);
+    const response = await fetch(`${NEXT_API_URL}/api/auth/chips`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
