@@ -292,6 +292,13 @@ export default function PokerClient({ serverUrl }) {
             <span>{livePlayers} joueur{livePlayers > 1 ? "s" : ""}</span>
             <span>·</span>
             <span>{affordable} accessible{affordable > 1 ? "s" : ""}</span>
+            <button 
+              className="recharge-btn sm" 
+              onClick={() => emit("me:refresh")}
+              title="Rafraîchir le solde"
+            >
+              🔄
+            </button>
             {me && me.chips < 1000 && (
               <button className="recharge-btn sm" onClick={() => emit("me:recharge")}>
                 🎁 +2000
@@ -567,6 +574,18 @@ export default function PokerClient({ serverUrl }) {
       {/* Hauteur figée : les contrôles apparaissent SANS pousser le feutre. */}
       <div className="action-bar">
         <div className={`action-slot ${isMyTurn ? "live" : ""}`}>
+          {mySeat && (
+            <button 
+              className="btn-leave-table" 
+              onClick={() => {
+                emit("table:leave");
+                emit("me:refresh"); // Rafraîchir le solde après avoir quitté
+              }}
+              title="Quitter la table"
+            >
+              ← Lobby
+            </button>
+          )}
           {!mySeat && <span className="waiting">👀 Tu regardes la partie.</span>}
           {mySeat && table.paused && (
             <span className="waiting">
