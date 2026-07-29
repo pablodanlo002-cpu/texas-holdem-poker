@@ -2,9 +2,9 @@ import jwt from "jsonwebtoken";
 import { randomInt } from "crypto";
 import { PokerTable } from "./engine.js";
 import { decideBotAction, pickBotProfile } from "./bot.js";
-import { findUserById, updateChips } from "../lib/db.js";
 
 const JWT_SECRET = process.env.JWT_SECRET;
+const NEXT_API_URL = process.env.NEXT_API_URL || "https://texas-holdem-poker-production-ee33.up.railway.app";
 const TURN_MS = 25000;
 
 // Rythme de la partie
@@ -76,13 +76,34 @@ function findTableByCode(code) {
   return [...tables.values()].find((t) => t.code === c) || null;
 }
 
-function getBankroll(userId) {
-  const u = findUserById(userId);
-  return u ? u.chips : 0;
+// ---- Bankroll : récupération via API Next.js ----
+async function getBankroll(token) {
+  try {
+    const response = await fetch(`${NEXT_API_URL}/api/poker/chips`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!response.ok) return 0;
+    const data = await response.json();
+    return data.chips || 0;
+  } catch (error) {
+    console.error("Erreur getBankroll:", error);
+    return 0;
+  }
 }
 
-function setBankroll(userId, chips) {
-  updateChips(userId, chips);
+async function setBankroll(token, chips) {
+  try {
+    await fetch(`${NEXT_API_URL}/api/poker/chips`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ chips }),
+    });
+  } catch (error) {
+    console.error("Erreur setBankroll:", error);
+  }
 }
 
 function addBot(table) {
@@ -296,19 +317,21 @@ function broadcastLobby(io) {
   io.emit("lobby:tables", tableList());
 }
 
-function leaveCurrentTable(socket, io) {
+async function leaveCurrentTable(socket, io) {
   const tableId = socket.data.tableId;
   if (!tableId) return;
   const table = tables.get(tableId);
   if (table) {
     const stack = table.removePlayer(socket.data.user.id);
     if (typeof stack === "number") {
-      const bank = getBankroll(socket.data.user.id);
-      setBankroll(socket.data.user.id, bank + stack);
+      const token = socket.data.token;
+      const bank = await getBankroll(token);
+      await setBankroll(token, bank + stack);
+      const newChips = await getBankroll(token);
       socket.emit("me", {
         id: socket.data.user.id,
         username: socket.data.user.username,
-        chips: getBankroll(socket.data.user.id),
+        chips: newChips,
       });
     }
     socket.leave(`table:${tableId}`);
@@ -336,7 +359,8 @@ export function setupPokerServer(io) {
       const token = socket.handshake.auth?.token;
       if (!token) return next(new Error("Token manquant"));
       const payload = jwt.verify(token, JWT_SECRET);
-      // On fait confiance au JWT - pas besoin de chercher dans data.json
+      // On stocke le token et les infos utilisateur
+      socket.data.token = token;
       socket.data.user = { id: payload.id, username: payload.username };
       next();
     } catch {
@@ -346,8 +370,12 @@ export function setupPokerServer(io) {
 
   io.on("connection", (socket) => {
     const user = socket.data.user;
-    const sendMe = () =>
-      socket.emit("me", { id: user.id, username: user.username, chips: getBankroll(user.id) });
+    const token = socket.data.token;
+    
+    const sendMe = async () => {
+      const chips = await getBankroll(token);
+      socket.emit("me", { id: user.id, username: user.username, chips });
+    };
 
     sendMe();
     socket.emit("lobby:stakes", STAKES);
@@ -356,9 +384,9 @@ export function setupPokerServer(io) {
     socket.on("lobby:list", () => socket.emit("lobby:tables", tableList()));
     socket.on("me:refresh", sendMe);
 
-    socket.on("me:recharge", () => {
-      const bank = getBankroll(user.id);
-      if (bank < 1000) setBankroll(user.id, bank + 2000);
+    socket.on("me:recharge", async () => {
+      const bank = await getBankroll(token);
+      if (bank < 1000) await setBankroll(token, bank + 2000);
       sendMe();
     });
 
@@ -388,7 +416,7 @@ export function setupPokerServer(io) {
       socket.emit("lobby:codeResult", { summary: table.summary(), code: table.code });
     });
 
-    socket.on("table:join", ({ tableId, buyIn, code } = {}) => {
+    socket.on("table:join", async ({ tableId, buyIn, code } = {}) => {
       const table = tables.get(tableId);
       if (!table) return socket.emit("error:msg", "Table introuvable");
 
@@ -399,7 +427,7 @@ export function setupPokerServer(io) {
         }
       }
 
-      const bank = getBankroll(user.id);
+      const bank = await getBankroll(token);
       const min = table.minBuyIn();
       const max = Math.min(table.maxBuyIn(), bank);
 
@@ -424,7 +452,7 @@ export function setupPokerServer(io) {
       const res = table.seatPlayer(user.id, user.username, amount);
       if (res.error) return socket.emit("error:msg", res.error);
 
-      setBankroll(user.id, bank - amount);
+      await setBankroll(token, bank - amount);
 
       socket.data.tableId = tableId;
       socket.join(`table:${tableId}`);
@@ -435,13 +463,13 @@ export function setupPokerServer(io) {
       maybeStartHand(table, io);
     });
 
-    socket.on("table:addChips", ({ amount } = {}) => {
+    socket.on("table:addChips", async ({ amount } = {}) => {
       const table = tables.get(socket.data.tableId);
       if (!table) return;
       const seat = table.seats.find((s) => s && s.userId === user.id);
       if (!seat) return socket.emit("error:msg", "Pas à cette table");
 
-      const bank = getBankroll(user.id);
+      const bank = await getBankroll(token);
       const room = Math.max(0, table.maxBuyIn() - seat.chips);
       const add = Math.min(Math.round(amount || 0), bank, room);
       if (add <= 0) {
@@ -452,7 +480,7 @@ export function setupPokerServer(io) {
       }
       const res = table.addChips(user.id, add);
       if (res.error) return socket.emit("error:msg", res.error);
-      setBankroll(user.id, bank - add);
+      await setBankroll(token, bank - add);
       sendMe();
       broadcastTable(table, io);
       maybeStartHand(table, io);
