@@ -390,7 +390,12 @@ export function setupPokerServer(io) {
     const token = socket.data.token;
     
     const sendMe = async () => {
-      const chips = await getBankroll(token);
+      let chips = await getBankroll(token);
+      // Si l'API retourne 0 (utilisateur pas trouvé ou erreur), on initialise avec 5000
+      if (chips === 0) {
+        chips = 5000;
+        console.log(`[INIT] Utilisateur ${user.username} initialisé avec 5000 coins`);
+      }
       socket.emit("me", { id: user.id, username: user.username, chips });
     };
 
@@ -402,8 +407,14 @@ export function setupPokerServer(io) {
     socket.on("me:refresh", sendMe);
 
     socket.on("me:recharge", async () => {
-      const bank = await getBankroll(token);
-      if (bank < 1000) await setBankroll(token, bank + 2000);
+      let bank = await getBankroll(token);
+      // Si l'API retourne 0, on initialise avec 5000
+      if (bank === 0) {
+        bank = 5000;
+        console.log(`[INIT] Utilisateur ${user.username} initialisé avec 5000 coins lors du recharge`);
+      } else if (bank < 1000) {
+        await setBankroll(token, bank + 2000);
+      }
       sendMe();
     });
 
@@ -444,7 +455,13 @@ export function setupPokerServer(io) {
         }
       }
 
-      const bank = await getBankroll(token);
+      let bank = await getBankroll(token);
+      // Si l'API retourne 0, on initialise avec 5000
+      if (bank === 0) {
+        bank = 5000;
+        console.log(`[INIT] Utilisateur ${user.username} initialisé avec 5000 coins lors du join`);
+      }
+      
       const min = table.minBuyIn();
       const max = Math.min(table.maxBuyIn(), bank);
 
@@ -486,7 +503,13 @@ export function setupPokerServer(io) {
       const seat = table.seats.find((s) => s && s.userId === user.id);
       if (!seat) return socket.emit("error:msg", "Pas à cette table");
 
-      const bank = await getBankroll(token);
+      let bank = await getBankroll(token);
+      // Si l'API retourne 0, on initialise avec 5000
+      if (bank === 0) {
+        bank = 5000;
+        console.log(`[INIT] Utilisateur ${user.username} initialisé avec 5000 coins lors du addChips`);
+      }
+      
       const room = Math.max(0, table.maxBuyIn() - seat.chips);
       const add = Math.min(Math.round(amount || 0), bank, room);
       if (add <= 0) {
