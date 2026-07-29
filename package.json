@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p ${PORT:-3000}",
     "bot": "node bot/index.js",
     "poker": "node server/poker-server.js",
     "start:all": "concurrently -n site,poker,bot -c blue,green,magenta \"npm run start\" \"npm run poker\" \"npm run bot\"",
