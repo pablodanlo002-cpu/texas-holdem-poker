@@ -15,6 +15,7 @@ export default async function PokerPage() {
     redirect("/");
   }
 
-  const serverUrl = process.env.NEXT_PUBLIC_POKER_URL || "http://localhost:4000";
+  // Le serveur poker est maintenant intégré dans Next.js, même domaine
+  const serverUrl = typeof window !== "undefined" ? window.location.origin : "";
   return <PokerClient serverUrl={serverUrl} />;
 }

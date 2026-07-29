@@ -6,10 +6,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "node start-next.js",
+    "start": "node server.js",
     "bot": "node bot/index.js",
-    "poker": "node server/poker-server.js",
-    "start:all": "concurrently -n site,poker,bot -c blue,green,magenta \"npm run start\" \"npm run poker\" \"npm run bot\"",
+    "start:all": "concurrently -n site,bot -c blue,magenta \"npm run start\" \"npm run bot\"",
     "dev:all": "concurrently -n site,poker,bot -c blue,green,magenta \"npm run dev\" \"npm run poker\" \"npm run bot\""
   },
   "keywords": [],
