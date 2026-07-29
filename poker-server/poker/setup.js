@@ -96,28 +96,54 @@ function savePokerData(data) {
   fs.writeFileSync(POKER_DATA_PATH, JSON.stringify(data, null, 2));
 }
 
-// ---- Bankroll : récupération via fichier local ----
+// ---- Bankroll : récupération hybride (API + fichier local) ----
 async function getBankroll(token) {
   try {
     const payload = jwt.verify(token, JWT_SECRET);
-    const data = loadPokerData();
     
-    // Si l'utilisateur n'existe pas, on l'initialise avec 5000
-    if (!data.users[payload.id]) {
-      data.users[payload.id] = {
+    // 1. Essayer de récupérer depuis l'API Next.js
+    try {
+      const response = await fetch(`${NEXT_API_URL}/api/chips`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        console.log(`[API] Bankroll ${payload.username} depuis API: ${data.chips} coins`);
+        
+        // Synchroniser avec le fichier local
+        const localData = loadPokerData();
+        if (!localData.users[payload.id]) {
+          localData.users[payload.id] = {
+            id: payload.id,
+            username: payload.username,
+            chips: data.chips
+          };
+          savePokerData(localData);
+        }
+        
+        return data.chips || 0;
+      }
+    } catch (apiError) {
+      console.warn(`[API] Erreur API, utilisation du fichier local:`, apiError.message);
+    }
+    
+    // 2. Fallback sur le fichier local
+    const localData = loadPokerData();
+    if (!localData.users[payload.id]) {
+      localData.users[payload.id] = {
         id: payload.id,
         username: payload.username,
         chips: 5000
       };
-      savePokerData(data);
-      console.log(`[POKER DATA] Utilisateur ${payload.username} initialisé avec 5000 coins`);
+      savePokerData(localData);
+      console.log(`[LOCAL] Utilisateur ${payload.username} initialisé avec 5000 coins`);
       return 5000;
     }
     
-    console.log(`[POKER DATA] Bankroll ${payload.username}: ${data.users[payload.id].chips} coins`);
-    return data.users[payload.id].chips || 0;
+    console.log(`[LOCAL] Bankroll ${payload.username}: ${localData.users[payload.id].chips} coins`);
+    return localData.users[payload.id].chips || 0;
   } catch (error) {
-    console.error("[POKER DATA] Erreur getBankroll:", error.message);
+    console.error("[BANKROLL] Erreur getBankroll:", error.message);
     return 0;
   }
 }
@@ -125,22 +151,39 @@ async function getBankroll(token) {
 async function setBankroll(token, chips) {
   try {
     const payload = jwt.verify(token, JWT_SECRET);
-    const data = loadPokerData();
     
-    if (!data.users[payload.id]) {
-      data.users[payload.id] = {
+    // 1. Sauvegarder dans le fichier local
+    const localData = loadPokerData();
+    if (!localData.users[payload.id]) {
+      localData.users[payload.id] = {
         id: payload.id,
         username: payload.username,
         chips: chips
       };
     } else {
-      data.users[payload.id].chips = Math.max(0, Math.round(chips));
+      localData.users[payload.id].chips = Math.max(0, Math.round(chips));
     }
+    savePokerData(localData);
+    console.log(`[LOCAL] Bankroll ${payload.username} mis à jour: ${localData.users[payload.id].chips} coins`);
     
-    savePokerData(data);
-    console.log(`[POKER DATA] Bankroll ${payload.username} mis à jour: ${data.users[payload.id].chips} coins`);
+    // 2. Tenter de synchroniser avec l'API
+    try {
+      const response = await fetch(`${NEXT_API_URL}/api/chips`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ chips: Math.max(0, Math.round(chips)) }),
+      });
+      if (response.ok) {
+        console.log(`[API] Bankroll ${payload.username} synchronisé avec l'API`);
+      }
+    } catch (apiError) {
+      console.warn(`[API] Impossible de synchroniser avec l'API:`, apiError.message);
+    }
   } catch (error) {
-    console.error("[POKER DATA] Erreur setBankroll:", error.message);
+    console.error("[BANKROLL] Erreur setBankroll:", error.message);
   }
 }
 
