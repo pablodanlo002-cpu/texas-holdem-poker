@@ -21,12 +21,12 @@ const nextConfig = {
     '.ngrok.io',
   ],
 
-  // Rewrites pour rediriger Socket.IO vers le serveur poker interne
+  // Rewrites pour rediriger Socket.IO vers l'API proxy
   async rewrites() {
     return [
       {
         source: '/socket.io/:path*',
-        destination: 'http://localhost:4000/socket.io/:path*',
+        destination: '/api/socket',
       },
     ];
   },
