@@ -7,6 +7,14 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const NEXT_API_URL = process.env.NEXT_API_URL || "https://texas-holdem-poker-production-ee33.up.railway.app";
 const TURN_MS = 25000;
 
+if (!JWT_SECRET) {
+  console.error("❌ JWT_SECRET manquant dans les variables d'environnement !");
+  process.exit(1);
+}
+
+console.log(`[CONFIG] JWT_SECRET: ${JWT_SECRET ? "✓ Configuré" : "✗ MANQUANT"}`);
+console.log(`[CONFIG] NEXT_API_URL: ${NEXT_API_URL}`);
+
 // Rythme de la partie
 const BOT_MIN_MS = 1500;
 const BOT_MAX_MS = 3600;
@@ -15,11 +23,6 @@ const DEAL_MS = 1300;
 const SHOWDOWN_MS = 7000;
 const FOLD_END_MS = 3800;
 const MAX_BOTS = 3;
-
-if (!JWT_SECRET) {
-  console.error("JWT_SECRET requis dans .env.local");
-  process.exit(1);
-}
 
 // Niveaux de blinds
 const STAKES = [
@@ -79,21 +82,28 @@ function findTableByCode(code) {
 // ---- Bankroll : récupération via API Next.js ----
 async function getBankroll(token) {
   try {
+    console.log(`[API] GET bankroll depuis ${NEXT_API_URL}/api/poker/chips`);
     const response = await fetch(`${NEXT_API_URL}/api/poker/chips`, {
       headers: { Authorization: `Bearer ${token}` },
     });
-    if (!response.ok) return 0;
+    console.log(`[API] GET response status: ${response.status}`);
+    if (!response.ok) {
+      console.error(`[API] GET failed: ${response.status} ${response.statusText}`);
+      return 0;
+    }
     const data = await response.json();
+    console.log(`[API] GET bankroll success: ${data.chips} coins`);
     return data.chips || 0;
   } catch (error) {
-    console.error("Erreur getBankroll:", error);
+    console.error("[API] Erreur getBankroll:", error.message);
     return 0;
   }
 }
 
 async function setBankroll(token, chips) {
   try {
-    await fetch(`${NEXT_API_URL}/api/poker/chips`, {
+    console.log(`[API] POST bankroll ${chips} coins vers ${NEXT_API_URL}/api/poker/chips`);
+    const response = await fetch(`${NEXT_API_URL}/api/poker/chips`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -101,8 +111,14 @@ async function setBankroll(token, chips) {
       },
       body: JSON.stringify({ chips }),
     });
+    console.log(`[API] POST response status: ${response.status}`);
+    if (!response.ok) {
+      console.error(`[API] POST failed: ${response.status} ${response.statusText}`);
+    } else {
+      console.log(`[API] POST bankroll success: ${chips} coins`);
+    }
   } catch (error) {
-    console.error("Erreur setBankroll:", error);
+    console.error("[API] Erreur setBankroll:", error.message);
   }
 }
 
