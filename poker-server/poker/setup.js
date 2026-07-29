@@ -336,9 +336,8 @@ export function setupPokerServer(io) {
       const token = socket.handshake.auth?.token;
       if (!token) return next(new Error("Token manquant"));
       const payload = jwt.verify(token, JWT_SECRET);
-      const user = findUserById(payload.id);
-      if (!user) return next(new Error("Utilisateur introuvable"));
-      socket.data.user = { id: user.id, username: user.username };
+      // On fait confiance au JWT - pas besoin de chercher dans data.json
+      socket.data.user = { id: payload.id, username: payload.username };
       next();
     } catch {
       next(new Error("Authentification échouée"));
