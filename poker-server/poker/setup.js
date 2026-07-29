@@ -2,10 +2,13 @@ import jwt from "jsonwebtoken";
 import { randomInt } from "crypto";
 import { PokerTable } from "./engine.js";
 import { decideBotAction, pickBotProfile } from "./bot.js";
+import fs from "fs";
+import path from "path";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 const NEXT_API_URL = process.env.NEXT_API_URL || "https://texas-holdem-poker-production-ee33.up.railway.app";
 const TURN_MS = 25000;
+const POKER_DATA_PATH = path.join(process.cwd(), "poker-data.json");
 
 if (!JWT_SECRET) {
   console.error("❌ JWT_SECRET manquant dans les variables d'environnement !");
@@ -15,6 +18,7 @@ if (!JWT_SECRET) {
 console.log(`[CONFIG] JWT_SECRET: ${JWT_SECRET ? "✓ Configuré" : "✗ MANQUANT"}`);
 console.log(`[CONFIG] NEXT_API_URL: ${NEXT_API_URL}`);
 console.log(`[CONFIG] Chips API: ${NEXT_API_URL}/api/chips`);
+console.log(`[CONFIG] Local poker data: ${POKER_DATA_PATH}`);
 
 // Rythme de la partie
 const BOT_MIN_MS = 1500;
@@ -80,46 +84,63 @@ function findTableByCode(code) {
   return [...tables.values()].find((t) => t.code === c) || null;
 }
 
-// ---- Bankroll : récupération via API Next.js ----
+// ---- Chargement/sauvegarde des données poker ----
+function loadPokerData() {
+  if (fs.existsSync(POKER_DATA_PATH)) {
+    return JSON.parse(fs.readFileSync(POKER_DATA_PATH, "utf-8"));
+  }
+  return { users: {} };
+}
+
+function savePokerData(data) {
+  fs.writeFileSync(POKER_DATA_PATH, JSON.stringify(data, null, 2));
+}
+
+// ---- Bankroll : récupération via fichier local ----
 async function getBankroll(token) {
   try {
-    console.log(`[API] GET bankroll depuis ${NEXT_API_URL}/api/chips`);
-    const response = await fetch(`${NEXT_API_URL}/api/chips`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    console.log(`[API] GET response status: ${response.status}`);
-    if (!response.ok) {
-      console.error(`[API] GET failed: ${response.status} ${response.statusText}`);
-      return 0;
+    const payload = jwt.verify(token, JWT_SECRET);
+    const data = loadPokerData();
+    
+    // Si l'utilisateur n'existe pas, on l'initialise avec 5000
+    if (!data.users[payload.id]) {
+      data.users[payload.id] = {
+        id: payload.id,
+        username: payload.username,
+        chips: 5000
+      };
+      savePokerData(data);
+      console.log(`[POKER DATA] Utilisateur ${payload.username} initialisé avec 5000 coins`);
+      return 5000;
     }
-    const data = await response.json();
-    console.log(`[API] GET bankroll success: ${data.chips} coins`);
-    return data.chips || 0;
+    
+    console.log(`[POKER DATA] Bankroll ${payload.username}: ${data.users[payload.id].chips} coins`);
+    return data.users[payload.id].chips || 0;
   } catch (error) {
-    console.error("[API] Erreur getBankroll:", error.message);
+    console.error("[POKER DATA] Erreur getBankroll:", error.message);
     return 0;
   }
 }
 
 async function setBankroll(token, chips) {
   try {
-    console.log(`[API] POST bankroll ${chips} coins vers ${NEXT_API_URL}/api/chips`);
-    const response = await fetch(`${NEXT_API_URL}/api/chips`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ chips }),
-    });
-    console.log(`[API] POST response status: ${response.status}`);
-    if (!response.ok) {
-      console.error(`[API] POST failed: ${response.status} ${response.statusText}`);
+    const payload = jwt.verify(token, JWT_SECRET);
+    const data = loadPokerData();
+    
+    if (!data.users[payload.id]) {
+      data.users[payload.id] = {
+        id: payload.id,
+        username: payload.username,
+        chips: chips
+      };
     } else {
-      console.log(`[API] POST bankroll success: ${chips} coins`);
+      data.users[payload.id].chips = Math.max(0, Math.round(chips));
     }
+    
+    savePokerData(data);
+    console.log(`[POKER DATA] Bankroll ${payload.username} mis à jour: ${data.users[payload.id].chips} coins`);
   } catch (error) {
-    console.error("[API] Erreur setBankroll:", error.message);
+    console.error("[POKER DATA] Erreur setBankroll:", error.message);
   }
 }
 
@@ -390,12 +411,7 @@ export function setupPokerServer(io) {
     const token = socket.data.token;
     
     const sendMe = async () => {
-      let chips = await getBankroll(token);
-      // Si l'API retourne 0 (utilisateur pas trouvé ou erreur), on initialise avec 5000
-      if (chips === 0) {
-        chips = 5000;
-        console.log(`[INIT] Utilisateur ${user.username} initialisé avec 5000 coins`);
-      }
+      const chips = await getBankroll(token);
       socket.emit("me", { id: user.id, username: user.username, chips });
     };
 
@@ -407,14 +423,8 @@ export function setupPokerServer(io) {
     socket.on("me:refresh", sendMe);
 
     socket.on("me:recharge", async () => {
-      let bank = await getBankroll(token);
-      // Si l'API retourne 0, on initialise avec 5000
-      if (bank === 0) {
-        bank = 5000;
-        console.log(`[INIT] Utilisateur ${user.username} initialisé avec 5000 coins lors du recharge`);
-      } else if (bank < 1000) {
-        await setBankroll(token, bank + 2000);
-      }
+      const bank = await getBankroll(token);
+      if (bank < 1000) await setBankroll(token, bank + 2000);
       sendMe();
     });
 
@@ -455,13 +465,7 @@ export function setupPokerServer(io) {
         }
       }
 
-      let bank = await getBankroll(token);
-      // Si l'API retourne 0, on initialise avec 5000
-      if (bank === 0) {
-        bank = 5000;
-        console.log(`[INIT] Utilisateur ${user.username} initialisé avec 5000 coins lors du join`);
-      }
-      
+      const bank = await getBankroll(token);
       const min = table.minBuyIn();
       const max = Math.min(table.maxBuyIn(), bank);
 
@@ -503,13 +507,7 @@ export function setupPokerServer(io) {
       const seat = table.seats.find((s) => s && s.userId === user.id);
       if (!seat) return socket.emit("error:msg", "Pas à cette table");
 
-      let bank = await getBankroll(token);
-      // Si l'API retourne 0, on initialise avec 5000
-      if (bank === 0) {
-        bank = 5000;
-        console.log(`[INIT] Utilisateur ${user.username} initialisé avec 5000 coins lors du addChips`);
-      }
-      
+      const bank = await getBankroll(token);
       const room = Math.max(0, table.maxBuyIn() - seat.chips);
       const add = Math.min(Math.round(amount || 0), bank, room);
       if (add <= 0) {
