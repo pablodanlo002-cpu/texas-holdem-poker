@@ -462,13 +462,22 @@ export function setupPokerServer(io) {
   // Charger les rewards depuis le fichier au démarrage
   console.log("[REWARDS] Chargement du cache rewards depuis poker-data.json...");
   const initialData = loadPokerData();
-  if (initialData.users) {
+  console.log("[REWARDS] Données chargées:", JSON.stringify(initialData, null, 2));
+  
+  if (initialData && initialData.users) {
+    const userCount = Object.keys(initialData.users).length;
+    console.log(`[REWARDS] ${userCount} utilisateurs trouvés dans le fichier`);
+    
     Object.entries(initialData.users).forEach(([userId, userData]) => {
-      if (userData.rewards) {
+      if (userData && userData.rewards) {
         rewardsCache.set(parseInt(userId), userData.rewards);
-        console.log(`[REWARDS] Chargé rewards pour user ${userId}:`, userData.rewards);
+        console.log(`[REWARDS] ✓ Chargé rewards pour user ${userId}:`, userData.rewards);
+      } else {
+        console.log(`[REWARDS] ✗ Pas de rewards pour user ${userId}`);
       }
     });
+  } else {
+    console.log("[REWARDS] Aucun utilisateur dans le fichier");
   }
   console.log(`[REWARDS] Cache initialisé avec ${rewardsCache.size} utilisateurs`);
 
