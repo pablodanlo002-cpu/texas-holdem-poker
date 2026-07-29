@@ -19,7 +19,7 @@ console.log(`[CONFIG] JWT_SECRET: ${JWT_SECRET ? "✓ Configuré" : "✗ MANQUAN
 console.log(`[CONFIG] NEXT_API_URL: ${NEXT_API_URL}`);
 console.log(`[CONFIG] Chips API: ${NEXT_API_URL}/api/chips`);
 console.log(`[CONFIG] Local poker data: ${POKER_DATA_PATH}`);
-console.log(`[CONFIG] Rewards cache system: ACTIVE`);
+console.log(`[CONFIG] Rewards cache system: ACTIVE v2`);
 
 // Rythme de la partie
 const BOT_MIN_MS = 1500;
