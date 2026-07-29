@@ -14,6 +14,7 @@ if (!JWT_SECRET) {
 
 console.log(`[CONFIG] JWT_SECRET: ${JWT_SECRET ? "✓ Configuré" : "✗ MANQUANT"}`);
 console.log(`[CONFIG] NEXT_API_URL: ${NEXT_API_URL}`);
+console.log(`[CONFIG] Chips API: ${NEXT_API_URL}/api/chips`);
 
 // Rythme de la partie
 const BOT_MIN_MS = 1500;
@@ -82,8 +83,8 @@ function findTableByCode(code) {
 // ---- Bankroll : récupération via API Next.js ----
 async function getBankroll(token) {
   try {
-    console.log(`[API] GET bankroll depuis ${NEXT_API_URL}/api/auth/chips`);
-    const response = await fetch(`${NEXT_API_URL}/api/auth/chips`, {
+    console.log(`[API] GET bankroll depuis ${NEXT_API_URL}/api/chips`);
+    const response = await fetch(`${NEXT_API_URL}/api/chips`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     console.log(`[API] GET response status: ${response.status}`);
@@ -102,8 +103,8 @@ async function getBankroll(token) {
 
 async function setBankroll(token, chips) {
   try {
-    console.log(`[API] POST bankroll ${chips} coins vers ${NEXT_API_URL}/api/auth/chips`);
-    const response = await fetch(`${NEXT_API_URL}/api/auth/chips`, {
+    console.log(`[API] POST bankroll ${chips} coins vers ${NEXT_API_URL}/api/chips`);
+    const response = await fetch(`${NEXT_API_URL}/api/chips`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
