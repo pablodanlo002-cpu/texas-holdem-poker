@@ -133,7 +133,8 @@ async function getBankroll(token) {
       localData.users[payload.id] = {
         id: payload.id,
         username: payload.username,
-        chips: 5000
+        chips: 5000,
+        rewards: {}
       };
       savePokerData(localData);
       console.log(`[LOCAL] Utilisateur ${payload.username} initialisé avec 5000 coins`);
@@ -474,21 +475,75 @@ export function setupPokerServer(io) {
     socket.on("poker:reward", async ({ type } = {}) => {
       if (!type || (type !== "youtube" && type !== "tiktok")) return;
       
+      // Vérifier si déjà réclamé
+      const payload = jwt.verify(token, JWT_SECRET);
+      const localData = loadPokerData();
+      
+      if (!localData.users[payload.id]) {
+        localData.users[payload.id] = {
+          id: payload.id,
+          username: payload.username,
+          chips: 5000,
+          rewards: {}
+        };
+      }
+      
+      const userRewards = localData.users[payload.id].rewards || {};
+      
+      if (userRewards[type]) {
+        socket.emit("error:msg", `Tu as déjà réclamé la récompense ${type === "youtube" ? "YouTube" : "TikTok"} !`);
+        return;
+      }
+      
+      // Donner la récompense
       const bank = await getBankroll(token);
       await setBankroll(token, bank + 500);
-      console.log(`[REWARD] ${user.username} a reçu +500 coins pour ${type}`);
+      
+      // Marquer comme réclamé
+      localData.users[payload.id].rewards[type] = Date.now();
+      savePokerData(localData);
+      
+      console.log(`[REWARD] ${payload.username} a reçu +500 coins pour ${type}`);
+      socket.emit("error:msg", `✅ +500 coins pour ${type === "youtube" ? "YouTube" : "TikTok"} !`);
       sendMe();
     });
 
     socket.on("poker:spinWheel", async () => {
-      // Système de roue simple : gains aléatoires entre 100 et 2000 coins
+      const payload = jwt.verify(token, JWT_SECRET);
+      const localData = loadPokerData();
+      
+      if (!localData.users[payload.id]) {
+        localData.users[payload.id] = {
+          id: payload.id,
+          username: payload.username,
+          chips: 5000,
+          rewards: {}
+        };
+      }
+      
+      const userRewards = localData.users[payload.id].rewards || {};
+      const lastSpin = userRewards.wheel || 0;
+      const now = Date.now();
+      const cooldown = 24 * 60 * 60 * 1000; // 24h en ms
+      
+      if (now - lastSpin < cooldown) {
+        const remaining = Math.ceil((cooldown - (now - lastSpin)) / (60 * 60 * 1000));
+        socket.emit("error:msg", `⏰ Tu pourras tourner la roue dans ${remaining}h`);
+        return;
+      }
+      
+      // Tourner la roue
       const prizes = [100, 250, 500, 750, 1000, 1500, 2000];
       const won = prizes[Math.floor(Math.random() * prizes.length)];
       
       const bank = await getBankroll(token);
       await setBankroll(token, bank + won);
-      console.log(`[WHEEL] ${user.username} a gagné ${won} coins à la roue`);
       
+      // Marquer la date du dernier spin
+      localData.users[payload.id].rewards.wheel = now;
+      savePokerData(localData);
+      
+      console.log(`[WHEEL] ${payload.username} a gagné ${won} coins à la roue`);
       socket.emit("poker:wheelResult", { won });
       sendMe();
     });
